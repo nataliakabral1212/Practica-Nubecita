@@ -1,38 +1,30 @@
-# Practica_Nube
+# Practica Nube
 
-Práctica escolar con Laravel 12, PHP 8.3 y MariaDB 11.8. Crea una cuenta, escanea el QR con Google Authenticator y confirma el código de seis dígitos. Guarda los códigos de recuperación. El inicio muestra tu nombre y el hostname del servidor que atendió la petición.
+Práctica de balanceo de carga con Laravel 12, PHP 8.3 y el [starter kit oficial Livewire](https://github.com/laravel/livewire-starter-kit/tree/be93d73522270d9a659dd72acb7fb102a8b83485). El indicador «Atendido por» identifica el nodo que respondió.
 
-## Despliegue en Rocky Linux 9
+## Despliegue
 
-En los dos nodos web, configura nginx con raíz en `public/`, fallback a `index.php` y PHP-FPM 8.3. Da permiso de escritura a PHP-FPM en `storage/` y `bootstrap/cache/`. Usa los módulos que trae PHP base y los paquetes para PDO MySQL con mysqlnd, mbstring, XML, bcmath, intl, GD, ZIP y Opcache. El QR se genera en SVG. Los assets de `public/build/` ya vienen compilados. Para actualizarlos en desarrollo, ejecuta `npm ci` y `npm run build` y versiona el resultado.
+En cada nodo, usa PHP 8.3 con PDO MySQL y configura la raíz web en `public/`. Da al proceso PHP permiso de escritura en `storage/` y `bootstrap/cache/`.
 
-Para el primer despliegue, ejecuta en cada nodo dentro del directorio del proyecto:
-
-```bash
-composer install --no-dev --optimize-autoloader
-cp .env.example .env
+```sh
+composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction
+cp -n .env.example .env
 ```
 
-Sustituye los marcadores en `.env` y configura las credenciales operativas. MariaDB debe tener la base creada y la cuenta de aplicación con `SELECT, INSERT, UPDATE, DELETE` sobre ella. Las sesiones, la caché y los bloqueos se guardan en la base compartida. Configura los mismos valores de aplicación y base en ambos nodos.
+Completa `DB_PASSWORD` y agrega `APP_KEY` a `.env`. Genera la clave una sola vez con `php artisan key:generate --show` y compártela entre los nodos. En un despliegue existente, conserva la clave para mantener acceso a los datos cifrados de 2FA. Configura un servicio de correo para enviar los enlaces de recuperación y verificación.
 
-Genera la clave una sola vez en el primer nodo y copia el mismo valor de `APP_KEY` de forma segura al segundo nodo. Conserva la clave en los siguientes despliegues.
+Con la conexión web de MariaDB limitada a `SELECT, INSERT, UPDATE, DELETE`, ejecuta la migración una sola vez por despliegue desde un entorno con `DB_MIGRATE_USERNAME` y `DB_MIGRATE_PASSWORD` disponibles para el comando.
 
-```bash
-php artisan key:generate
-```
-
-Si ya existe una caché de configuración en el nodo desde el que vas a migrar, ejecuta `php artisan config:clear`. Configura `DB_MIGRATE_USERNAME` y `DB_MIGRATE_PASSWORD` durante la migración con una cuenta con todos los privilegios sobre esta base. Ejecuta el comando una vez desde el primer nodo y retira las credenciales de migración antes de generar la caché de configuración.
-
-```bash
+```sh
 php artisan migrate --database=migraciones --force
 ```
 
-En ambos nodos:
+En cada nodo, con las credenciales de la aplicación:
 
-```bash
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
+```sh
+php artisan optimize
 ```
 
-Usa HTTPS de Cloudflare al balanceador nginx, con TLS Full (strict). Configura el balanceador para aceptar el origen de Cloudflare desde sus rangos autorizados y obtener la IP del cliente de `CF-Connecting-IP`. Al reenviar a los nodos, sobrescribe `X-Forwarded-For` con esa IP, `X-Forwarded-Proto` con `https`, `X-Forwarded-Host` con el dominio de la aplicación y `X-Forwarded-Port` con `443`. Laravel confía en la IP privada `10.124.0.3` para esos encabezados. Mantén sincronizados los relojes de ambos nodos y evita cachear las páginas de autenticación y el panel en Cloudflare. Actualiza `/inicio` para comprobar qué nodo responde.
+Nginx en `10.124.0.3` debe enviar los encabezados `X-Forwarded-For`, `X-Forwarded-Proto`, `X-Forwarded-Host` y `X-Forwarded-Port` con los valores de la solicitud pública. Los nodos comparten sesiones y caché en MariaDB.
+
+Los archivos de `public/build` se incluyen en Git. Si cambias el frontend, ejecuta `npm ci` y `npm run build` en tu equipo y sube los archivos generados.

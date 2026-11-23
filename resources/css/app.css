@@ -1,23 +1,66 @@
-.shell { width: min(100% - 2rem, 34rem); margin: clamp(1.5rem, 7vw, 5rem) auto; }
-.brand { display: flex; align-items: center; gap: .8rem; margin-bottom: 1rem; font-weight: 700; }
-.brand img { flex: none; }
-.card { padding: clamp(1.25rem, 5vw, 2.5rem); background: white; border: 1px solid #d1e0eb; border-radius: 1.25rem; box-shadow: 0 12px 34px #19395312; }
-h1 { margin: 0 0 1rem; font-size: clamp(1.75rem, 6vw, 2.35rem); line-height: 1.12; overflow-wrap: anywhere; }
-p { color: #385268; }
-form { display: grid; gap: .55rem; }
-label { margin-top: .25rem; font-weight: 650; }
-input { width: 100%; padding: .65rem .75rem; border: 1px solid #8298aa; border-radius: .5rem; }
-button, .button { display: inline-block; margin-top: .6rem; padding: .65rem 1rem; border: 1px solid #144c72; border-radius: .5rem; background: #144c72; color: white; font-weight: 650; text-decoration: none; cursor: pointer; }
-button:hover, .button:hover { background: #103956; }
-button.secondary { justify-self: start; color: #144c72; background: white; }
-button.secondary:hover { background: #ecf3f8; }
-.footer, details { margin-top: 1.3rem; }
-summary { color: #075082; cursor: pointer; }
-details form { margin-top: .7rem; }
-.errors { padding: .7rem .9rem .7rem 2rem; background: #fff2f0; color: #8a251b; border-radius: .5rem; }
-.qr { width: fit-content; padding: 1rem; background: white; border: 1px solid #d1e0eb; border-radius: .65rem; }
-.qr svg { display: block; width: 12rem; max-width: 100%; height: auto; }
-.secret, .server, .recovery { padding: .9rem; background: #f0f6fa; border-radius: .6rem; }
-.server dt { font-weight: 650; }
-.server dd { margin: .3rem 0 0; }
-.recovery { list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: .35rem; }
+@import 'tailwindcss';
+@import '../../vendor/livewire/flux/dist/flux.css';
+
+@source '../views';
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../vendor/livewire/flux-pro/stubs/**/*.blade.php';
+@source '../../vendor/livewire/flux/stubs/**/*.blade.php';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+
+    --color-zinc-50: #fafafa;
+    --color-zinc-100: #f5f5f5;
+    --color-zinc-200: #e5e5e5;
+    --color-zinc-300: #d4d4d4;
+    --color-zinc-400: #a3a3a3;
+    --color-zinc-500: #737373;
+    --color-zinc-600: #525252;
+    --color-zinc-700: #404040;
+    --color-zinc-800: #262626;
+    --color-zinc-900: #171717;
+    --color-zinc-950: #0a0a0a;
+
+    --color-accent: var(--color-neutral-800);
+    --color-accent-content: var(--color-neutral-800);
+    --color-accent-foreground: var(--color-white);
+}
+
+@layer theme {
+    .dark {
+        --color-accent: var(--color-white);
+        --color-accent-content: var(--color-white);
+        --color-accent-foreground: var(--color-neutral-800);
+    }
+}
+
+@layer base {
+
+    *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+        border-color: var(--color-gray-200, currentColor);
+    }
+}
+
+[data-flux-field]:not(ui-radio, ui-checkbox) {
+    @apply grid gap-2;
+}
+
+[data-flux-label] {
+    @apply  !mb-0 !leading-tight;
+}
+
+input:focus[data-flux-control],
+textarea:focus[data-flux-control],
+select:focus[data-flux-control] {
+    @apply outline-hidden ring-2 ring-accent ring-offset-2 ring-offset-accent-foreground;
+}
+
+/* \[:where(&)\]:size-4 {
+    @apply size-4;
+} */

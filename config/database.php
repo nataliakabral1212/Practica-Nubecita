@@ -81,15 +81,18 @@ return [
             ]) : [],
         ],
 
-        'mariadb' => array_replace($mariadb, [
-            'username' => env('DB_USERNAME'),
+        'mariadb' => [
+            ...$mariadb,
+            'url' => env('DB_URL'),
+            'username' => env('DB_USERNAME', 'root'),
             'password' => env('DB_PASSWORD', ''),
-        ]),
+        ],
 
-        'migraciones' => array_replace($mariadb, [
+        'migraciones' => [
+            ...$mariadb,
             'username' => env('DB_MIGRATE_USERNAME'),
-            'password' => env('DB_MIGRATE_PASSWORD', ''),
-        ]),
+            'password' => env('DB_MIGRATE_PASSWORD'),
+        ],
 
         'pgsql' => [
             'driver' => 'pgsql',
