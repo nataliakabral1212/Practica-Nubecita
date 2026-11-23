@@ -11,11 +11,29 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->text('two_factor_secret')->after('password')->nullable();
-            $table->text('two_factor_recovery_codes')->after('two_factor_secret')->nullable();
-            $table->timestamp('two_factor_confirmed_at')->after('two_factor_recovery_codes')->nullable();
-        });
+        if (! Schema::hasTable('users')) {
+            return;
+        }
+
+        $needsSecret = ! Schema::hasColumn('users', 'two_factor_secret');
+        $needsRecoveryCodes = ! Schema::hasColumn('users', 'two_factor_recovery_codes');
+        $needsConfirmation = ! Schema::hasColumn('users', 'two_factor_confirmed_at');
+
+        if ($needsSecret || $needsRecoveryCodes || $needsConfirmation) {
+            Schema::table('users', function (Blueprint $table) use ($needsSecret, $needsRecoveryCodes, $needsConfirmation) {
+                if ($needsSecret) {
+                    $table->text('two_factor_secret')->nullable();
+                }
+
+                if ($needsRecoveryCodes) {
+                    $table->text('two_factor_recovery_codes')->nullable();
+                }
+
+                if ($needsConfirmation) {
+                    $table->timestamp('two_factor_confirmed_at')->nullable();
+                }
+            });
+        }
     }
 
     /**
@@ -23,12 +41,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn([
-                'two_factor_secret',
-                'two_factor_recovery_codes',
-                'two_factor_confirmed_at',
-            ]);
-        });
+        throw new LogicException('This migration may have adopted an existing schema and cannot be safely reversed.');
     }
 };

@@ -12,5 +12,8 @@ test('authenticated users can visit the dashboard', function () {
     $this->actingAs($user);
 
     $response = $this->get(route('dashboard'));
-    $response->assertOk();
+    $response->assertOk()
+        ->assertSee('Escenario')
+        ->assertSee('<dd class="concert-host">'.e(gethostname()).'</dd>', escape: false)
+        ->assertSee('Atendido por: '.gethostname());
 });

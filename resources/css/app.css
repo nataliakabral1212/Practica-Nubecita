@@ -64,3 +64,248 @@ select:focus[data-flux-control] {
 /* \[:where(&)\]:size-4 {
     @apply size-4;
 } */
+
+.concert-stage {
+    --concert-accent: #59ecff;
+    --concert-light: #244fff;
+    --concert-panel: #111326;
+    --concert-muted: #b6b9d0;
+    --color-accent: var(--concert-accent);
+    --color-accent-content: var(--concert-accent);
+    --color-accent-foreground: #080916;
+    color-scheme: dark;
+    color: #f6f5ff;
+    background:
+        radial-gradient(ellipse at 80% 0%, color-mix(in srgb, var(--concert-light) 36%, transparent), transparent 55%),
+        radial-gradient(ellipse at 8% 100%, color-mix(in srgb, var(--concert-accent) 11%, transparent), transparent 50%),
+        #080916;
+}
+
+.concert-stage[data-accent="fuchsia"] {
+    --concert-accent: #ff71db;
+    --concert-light: #841dff;
+}
+
+.concert-stage .concert-sidebar {
+    border-inline-end: 1px solid #282943;
+    background: #0d0e1c;
+}
+
+.concert-stage .concert-sidebar [data-current],
+.concert-stage .concert-settings-nav [data-current] {
+    color: var(--concert-accent);
+    background: color-mix(in srgb, var(--concert-accent) 12%, #121426);
+}
+
+.concert-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #f6f5ff;
+    font-size: 0.95rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.concert-brand-icon {
+    display: grid;
+    width: 2.25rem;
+    aspect-ratio: 1;
+    place-items: center;
+    border: 1px solid color-mix(in srgb, var(--concert-accent) 55%, transparent);
+    border-radius: 0.5rem;
+    color: var(--concert-accent);
+    background: color-mix(in srgb, var(--concert-accent) 15%, #101022);
+}
+
+.concert-brand-icon svg {
+    width: 1.25rem;
+}
+
+.concert-mobile-header {
+    background: #0d0e1c;
+    border-block-end: 1px solid #282943;
+}
+
+.concert-stage .concert-main {
+    min-width: 0;
+    padding: clamp(1rem, 4vw, 4rem);
+    padding-bottom: 4rem;
+}
+
+.concert-content {
+    max-width: 72rem;
+    margin-inline: auto;
+}
+
+.concert-title {
+    font-family: Impact, "Arial Narrow", var(--font-sans);
+    font-size: clamp(2.5rem, 8vw, 6rem);
+    font-weight: 900;
+    line-height: 0.95;
+    letter-spacing: -0.025em;
+    text-transform: uppercase;
+}
+
+.concert-ticket {
+    --ticket-edge: color-mix(in srgb, var(--concert-accent) 31%, #282943);
+    min-width: 0;
+    border: 1px solid var(--ticket-edge);
+    border-radius: 0.9rem;
+    background: var(--concert-panel);
+}
+
+.concert-hero {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) clamp(5rem, 22vw, 15rem);
+    overflow: hidden;
+    background:
+        linear-gradient(135deg, transparent 45%, color-mix(in srgb, var(--concert-accent) 14%, transparent)),
+        radial-gradient(ellipse at 94% 5%, color-mix(in srgb, var(--concert-light) 47%, transparent), transparent 60%),
+        var(--concert-panel);
+}
+
+.concert-hero-copy {
+    min-width: 0;
+    padding: clamp(1.5rem, 5vw, 4rem);
+}
+
+.concert-hero dt {
+    margin-top: clamp(1.5rem, 4vw, 3.5rem);
+    color: var(--concert-muted);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.concert-host {
+    color: var(--concert-accent);
+    font-size: clamp(1.85rem, 6vw, 4.5rem);
+    font-weight: 850;
+    line-height: 1.05;
+    overflow-wrap: anywhere;
+    text-shadow: 0 0 1.4rem color-mix(in srgb, var(--concert-accent) 37%, transparent);
+}
+
+.concert-ticket-stub {
+    position: relative;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 1.5rem;
+    border-inline-start: 1px dashed var(--ticket-edge);
+    color: var(--concert-accent);
+}
+
+.concert-ticket-stub::before,
+.concert-ticket-stub::after {
+    position: absolute;
+    left: -0.65rem;
+    width: 1.25rem;
+    aspect-ratio: 1;
+    border: 1px solid var(--ticket-edge);
+    border-radius: 50%;
+    background: #080916;
+    content: "";
+}
+
+.concert-ticket-stub::before { top: -0.65rem; }
+.concert-ticket-stub::after { bottom: -0.65rem; }
+
+.concert-ticket-stub svg {
+    width: clamp(2rem, 6vw, 4.5rem);
+    height: auto;
+}
+
+.concert-equalizer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(2px, 0.5vw, 6px);
+    height: 1.8rem;
+}
+
+.concert-equalizer span {
+    width: 3px;
+    height: 40%;
+    background: currentColor;
+}
+
+.concert-equalizer span:nth-child(even) { height: 68%; }
+.concert-equalizer span:nth-child(4) { height: 100%; }
+
+.concert-shortcuts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.concert-shortcut {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem;
+}
+
+.concert-shortcut:hover,
+.concert-shortcut:focus-visible {
+    border-color: var(--concert-accent);
+}
+
+.concert-shortcut h2 { font-weight: 800; }
+
+.concert-shortcut p,
+.concert-settings-heading p { color: var(--concert-muted); }
+
+.concert-settings-heading { margin-bottom: 2rem; }
+
+.concert-settings-heading .concert-title {
+    margin-block: 0.5rem;
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+}
+
+.concert-settings {
+    display: grid;
+    grid-template-columns: minmax(10rem, 14rem) minmax(0, 1fr);
+    align-items: start;
+    gap: 1rem;
+}
+
+.concert-settings-nav {
+    border: 1px solid #282943;
+    border-radius: 0.9rem;
+    padding: 0.55rem;
+    background: #0d0e1c;
+}
+
+.concert-settings-panel { padding: clamp(1.25rem, 4vw, 2.5rem); }
+.concert-accent { color: var(--concert-accent); }
+
+@media (max-width: 700px) {
+    .concert-settings { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 480px) {
+    .concert-hero { grid-template-columns: minmax(0, 1fr); }
+
+    .concert-ticket-stub {
+        grid-auto-flow: column;
+        align-items: center;
+        border-inline-start: 0;
+        border-block-start: 1px dashed var(--ticket-edge);
+        padding: 0.75rem;
+    }
+
+    .concert-ticket-stub::before,
+    .concert-ticket-stub::after { top: -0.65rem; }
+
+    .concert-ticket-stub::after {
+        right: -0.65rem;
+        left: auto;
+    }
+}
