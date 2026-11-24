@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\User;
-use Livewire\Livewire;
 use PragmaRX\Google2FA\Google2FA;
 
 test('the server badge is visible on the public pages', function (string $route) {
@@ -29,32 +28,25 @@ test('a registered user can enroll with an SVG QR and sign in with a TOTP', func
         ...$credentials,
         'name' => 'TOTP Test',
         'password_confirmation' => $credentials['password'],
-    ])->assertSessionHasNoErrors()->assertRedirect(route('dashboard', absolute: false));
-
-    $this->get(route('dashboard'))->assertOk()->assertSee($badge);
-    $this->post(route('password.confirm.store'), ['password' => $credentials['password']])
-        ->assertSessionHasNoErrors();
-    $this->get(route('two-factor.show'))->assertOk()->assertSee($badge);
-
-    $setup = Livewire::test('pages::settings.two-factor-setup-modal', ['requiresConfirmation' => true])
-        ->dispatch('start-two-factor-setup')
-        ->assertHasNoErrors();
-
-    expect($setup->get('qrCodeSvg'))->toStartWith('<svg');
-    $secret = $setup->get('manualSetupKey');
-    $setupCode = $totp->getCurrentOtp($secret);
-
-    $setup->call('showVerificationIfNecessary')
-        ->set('code', $setupCode)
-        ->call('confirmTwoFactor')
-        ->assertHasNoErrors()
-        ->assertDispatched('two-factor-enabled');
+    ])->assertSessionHasNoErrors()->assertRedirect(route('two-factor.setup'));
 
     $user = User::where('email', $credentials['email'])->firstOrFail();
+    $this->get(route('two-factor.setup'))->assertOk()->assertSee($badge)
+        ->assertSee($user->twoFactorQrCodeSvg(), escape: false);
+    $secret = decrypt($user->two_factor_secret);
+    $setupCode = $totp->getCurrentOtp($secret);
+
+    $this->from(route('two-factor.setup'))->post(route('two-factor.confirm'), ['code' => 'abc'])
+        ->assertSessionHasErrors('code');
+    $this->get(route('dashboard'))->assertRedirect(route('two-factor.setup'));
+    $this->from(route('two-factor.setup'))->post(route('two-factor.confirm'), ['code' => $setupCode])
+        ->assertSessionHasNoErrors()->assertRedirect(route('two-factor.setup'));
+
+    $user->refresh();
     expect($user->two_factor_confirmed_at)->not->toBeNull();
     expect($user->recoveryCodes())->toHaveCount(8);
-    $recoveryPage = $this->get(route('two-factor.show'))->assertOk();
-    expect(str_contains($recoveryPage->getContent(), $user->recoveryCodes()[0]))->toBeTrue();
+    $this->get(route('two-factor.setup'))->assertOk()->assertSee($user->recoveryCodes()[0]);
+    $this->get(route('dashboard'))->assertOk()->assertSee($badge);
 
     $this->post(route('logout'))->assertRedirect('/');
     $this->assertGuest();

@@ -9,7 +9,7 @@ test('login screen can be rendered', function () {
     $response->assertOk();
 });
 
-test('users can authenticate using the login screen', function () {
+test('existing users without two factor authentication must set it up after login', function () {
     $user = User::factory()->create();
 
     $response = $this->post(route('login.store'), [
@@ -19,9 +19,20 @@ test('users can authenticate using the login screen', function () {
 
     $response
         ->assertSessionHasNoErrors()
-        ->assertRedirect(route('dashboard', absolute: false));
+        ->assertRedirect(route('two-factor.setup'));
 
     $this->assertAuthenticated();
+    $this->get(route('two-factor.setup'))->assertOk()->assertSee('Confirm password');
+    $this->get(route('dashboard'))->assertRedirect(route('two-factor.setup'));
+
+    $this->from(route('two-factor.setup'))->post(route('two-factor.enable'))
+        ->assertRedirect(route('password.confirm'));
+    $this->get(route('two-factor.setup'));
+    $this->post(route('password.confirm.store'), ['password' => 'password'])
+        ->assertRedirect(route('two-factor.setup'));
+    $this->from(route('two-factor.setup'))->post(route('two-factor.enable'))
+        ->assertRedirect(route('two-factor.setup'));
+    $this->get(route('two-factor.setup'))->assertOk()->assertSee('<svg', escape: false);
 });
 
 test('users can not authenticate with invalid password', function () {
@@ -56,7 +67,7 @@ test('users with two factor enabled are redirected to two factor challenge', fun
     $this->assertGuest();
 });
 
-test('users can logout', function () {
+test('users without confirmed two factor authentication can logout', function () {
     $user = User::factory()->create();
 
     $response = $this->actingAs($user)->post(route('logout'));
